@@ -39,17 +39,52 @@ test('main() should invoke deleteResource when method is DELETE', t => {
   t.pass()
 })
 
-// test('readResource() should return internalServerError on errors', async t => {
-//
-// })
+test('readResource() should return internalServerError on errors', async t => {
+  const getObject = td.function()
+  td.when(getObject({Bucket: 'fixturesBucket', Key: 'error.json'})).thenCallback(new Error('Bucket error'))
+  td.when(getObject({Bucket: 'fixturesBucket', Key: 'corruptedData.json'}))
+    .thenCallback(null, {Body: Buffer.from('ABC')})
+
+  const fixturesBucket = 'fixturesBucket'
+  const testCases = [
+    {
+      data: {is4xx: '403'},
+      services: {s3: {getObject}},
+      fixturesBucket,
+      expected: {httpStatus: 403, error: undefined},
+    },
+    {
+      data: {is5xx: '501'},
+      services: {s3: {getObject}},
+      fixturesBucket,
+      expected: {httpStatus: 501, error: undefined},
+    },
+    {
+      data: {resource: 'error'},
+      services: {s3: {getObject}},
+      fixturesBucket,
+      expected: {httpStatus: 500, error: 'Bucket error'},
+    },
+    {
+      data: {resource: 'corruptedData'},
+      services: {s3: {getObject}},
+      fixturesBucket,
+      expected: {httpStatus: 500, error: 'Unexpected token A in JSON at position 0'},
+    },
+  ]
+
+  await Promise.all(testCases.map(({data, services, fixturesBucket: fb}) => handler.readResource(data, services, fb)))
+    .then(results => results.forEach(validator(t, testCases)))
+    .catch(t)
+})
 
 // test('readResource()', async t => {
-//   const fuxturesBucket = 'fuxturesBucket'
+//   const fixturesBucket = 'fixturesBucket'
 //   const services = {
 //     s3: () => {},
 //   }
 //   const testData = [
-//     {data: {}, services, fuxturesBucket, expected: {}},
+//     {data: {}, services, fixturesBucket, expected: {}},
 //   ]
 //
 // })
