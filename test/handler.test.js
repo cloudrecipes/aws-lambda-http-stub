@@ -4,9 +4,21 @@ const handler = require('../lib/handler')
 
 test.afterEach(t => td.reset()) // eslint-disable-line no-unused-vars
 
-test('errorFactory()', async t => {
-  const error = await handler.errorFactory(500, 'Test error')
-  t.deepEqual(error, {httpStatus: 500, error: 'Test error'})
+test('responseFactory()', async t => {
+  const testCases = [
+    {httpStatus: 500, data: 'Internal service error', expected: {httpStatus: 500, error: 'Internal service error'}},
+    {httpStatus: 400, data: null, expected: {httpStatus: 400, error: null}},
+    {httpStatus: 200, data: {foo: 'bar'}, expected: {httpStatus: 200, body: {foo: 'bar'}}},
+  ]
+
+  const validator = (actual, idx) => t.deepEqual(actual, testCases[idx].expected)
+
+  await Promise.all(testCases.map(({httpStatus, data}) => handler.responseFactory(httpStatus, data)))
+    .then(results => results.forEach(validator))
+    .catch(err => {
+      t.log(err)
+      t.fail()
+    })
 })
 
 test('main() should return correct status and error when passed unsupported method', async t => {
@@ -17,7 +29,7 @@ test('main() should return correct status and error when passed unsupported meth
 test('main() should invoke readResource when method is GET', t => {
   const readResource = td.replace(handler, 'readResource')
   handler.main({method: 'GET'}, {})
-  td.verify(readResource({method: 'GET'}, {}))
+  td.verify(readResource({method: 'GET'}, {}, td.matchers.anything()))
   t.pass()
 })
 
@@ -41,3 +53,9 @@ test('main() should invoke deleteResource when method is DELETE', t => {
   td.verify(deleteResource({method: 'DELETE'}, {}))
   t.pass()
 })
+
+
+test.todo('readResource()')
+test.todo('createResource()')
+test.todo('updateResource()')
+test.todo('delete()')

@@ -26,6 +26,11 @@ rules:
   object-curly-spacing:
     - warn
     - never
+  prefer-destructuring:
+    - error
+    -
+      array: true
+      object: true
   quotes:
     - warn
     - single
