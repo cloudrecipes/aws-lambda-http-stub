@@ -2,6 +2,8 @@ const test = require('ava')
 const td = require('testdouble')
 const handler = require('../lib/handler')
 
+const validator = (t, testCases) => (actual, idx) => t.deepEqual(actual, testCases[idx].expected)
+
 test.afterEach(t => td.reset()) // eslint-disable-line no-unused-vars
 
 test('main() should return correct status and error when passed unsupported method', async t => {
@@ -37,8 +39,21 @@ test('main() should invoke deleteResource when method is DELETE', t => {
   t.pass()
 })
 
+// test('readResource() should return internalServerError on errors', async t => {
+//
+// })
 
-test.todo('readResource()')
+// test('readResource()', async t => {
+//   const fuxturesBucket = 'fuxturesBucket'
+//   const services = {
+//     s3: () => {},
+//   }
+//   const testData = [
+//     {data: {}, services, fuxturesBucket, expected: {}},
+//   ]
+//
+// })
+
 test.todo('createResource()')
 test.todo('updateResource()')
 test.todo('delete()')
