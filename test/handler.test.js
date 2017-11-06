@@ -78,16 +78,31 @@ test('readResource() should return internalServerError on errors', async t => {
     .catch(t)
 })
 
-// test('readResource()', async t => {
-//   const fixturesBucket = 'fixturesBucket'
-//   const services = {
-//     s3: () => {},
-//   }
-//   const testData = [
-//     {data: {}, services, fixturesBucket, expected: {}},
-//   ]
-//
-// })
+test('readResource() should return successfull response', async t => {
+  const getObject = td.function()
+  td.when(getObject({Bucket: 'fixturesBucket', Key: 'data.json'}))
+    .thenCallback(null, {Body: Buffer.from('{"1": {"foo": "bar"}, "2": {"big": "kraken"}}')})
+
+  const fixturesBucket = 'fixturesBucket'
+  const testCases = [
+    {
+      data: {resource: 'data'},
+      services: {s3: {getObject}},
+      fixturesBucket,
+      expected: {httpStatus: 200, body: {1: {foo: 'bar'}, 2: {big: 'kraken'}}},
+    },
+    {
+      data: {resource: 'data', id: 2},
+      services: {s3: {getObject}},
+      fixturesBucket,
+      expected: {httpStatus: 200, body: {big: 'kraken'}},
+    },
+  ]
+
+  await Promise.all(testCases.map(({data, services, fixturesBucket: fb}) => handler.readResource(data, services, fb)))
+    .then(results => results.forEach(validator(t, testCases)))
+    .catch(t)
+})
 
 test.todo('createResource()')
 test.todo('updateResource()')
