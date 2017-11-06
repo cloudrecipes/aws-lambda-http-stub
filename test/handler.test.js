@@ -4,23 +4,6 @@ const handler = require('../lib/handler')
 
 test.afterEach(t => td.reset()) // eslint-disable-line no-unused-vars
 
-test('responseFactory()', async t => {
-  const testCases = [
-    {httpStatus: 500, data: 'Internal service error', expected: {httpStatus: 500, error: 'Internal service error'}},
-    {httpStatus: 400, data: null, expected: {httpStatus: 400, error: null}},
-    {httpStatus: 200, data: {foo: 'bar'}, expected: {httpStatus: 200, body: {foo: 'bar'}}},
-  ]
-
-  const validator = (actual, idx) => t.deepEqual(actual, testCases[idx].expected)
-
-  await Promise.all(testCases.map(({httpStatus, data}) => handler.responseFactory(httpStatus, data)))
-    .then(results => results.forEach(validator))
-    .catch(err => {
-      t.log(err)
-      t.fail()
-    })
-})
-
 test('main() should return correct status and error when passed unsupported method', async t => {
   const error = await handler.main({method: 'OPTION'}, {})
   t.deepEqual(error, {httpStatus: 500, error: 'Method \'OPTION\' not supported'})
