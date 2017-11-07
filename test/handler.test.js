@@ -103,7 +103,17 @@ test('readResource() should return successfull response', async t => {
     .catch(t)
 })
 
-test.todo('createResource()')
+test('createResource()', async t => {
+  const testCases = [
+    {data: {is5xx: '403'}, expected: {httpStatus: 403, error: undefined}},
+    {data: {is5xx: '500'}, expected: {httpStatus: 500, error: undefined}},
+    {data: {id: '123456ABCD'}, expected: {httpStatus: 201, body: {id: '123456ABCD'}}},
+  ]
+
+  await Promise.all(testCases.map(({data}) => handler.createResource(data)))
+    .then(results => results.forEach(validator(t, testCases)))
+    .catch(t)
+})
 
 test('updateResource()', async t => {
   const testCases = [
