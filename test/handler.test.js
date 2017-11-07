@@ -20,14 +20,14 @@ test('main() should invoke readResource when method is GET', t => {
 test('main() should invoke updateResource when method is PUT', t => {
   const updateResource = td.replace(handler, 'updateResource')
   handler.main({method: 'PUT'}, {})
-  td.verify(updateResource({method: 'PUT'}, {}))
+  td.verify(updateResource({method: 'PUT'}))
   t.pass()
 })
 
 test('main() should invoke createResource when method is POST', t => {
   const createResource = td.replace(handler, 'createResource')
   handler.main({method: 'POST'}, {})
-  td.verify(createResource({method: 'POST'}, {}))
+  td.verify(createResource({method: 'POST'}))
   t.pass()
 })
 
@@ -104,7 +104,18 @@ test('readResource() should return successfull response', async t => {
 })
 
 test.todo('createResource()')
-test.todo('updateResource()')
+
+test('updateResource()', async t => {
+  const testCases = [
+    {data: {is5xx: '404'}, expected: {httpStatus: 404, error: undefined}},
+    {data: {is5xx: '501'}, expected: {httpStatus: 501, error: undefined}},
+    {data: {}, expected: {httpStatus: 204, body: undefined}},
+  ]
+
+  await Promise.all(testCases.map(({data}) => handler.updateResource(data)))
+    .then(results => results.forEach(validator(t, testCases)))
+    .catch(t)
+})
 
 test('deleteResource()', async t => {
   const testCases = [
