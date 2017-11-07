@@ -1,8 +1,7 @@
 const test = require('ava')
 const td = require('testdouble')
 const handler = require('../lib/handler')
-
-const validator = (t, testCases) => (actual, idx) => t.deepEqual(actual, testCases[idx].expected)
+const {validator} = require('./helpers')
 
 test.afterEach(t => td.reset()) // eslint-disable-line no-unused-vars
 
@@ -35,7 +34,7 @@ test('main() should invoke createResource when method is POST', t => {
 test('main() should invoke deleteResource when method is DELETE', t => {
   const deleteResource = td.replace(handler, 'deleteResource')
   handler.main({method: 'DELETE'}, {})
-  td.verify(deleteResource({method: 'DELETE'}, {}))
+  td.verify(deleteResource({method: 'DELETE'}))
   t.pass()
 })
 
@@ -106,4 +105,14 @@ test('readResource() should return successfull response', async t => {
 
 test.todo('createResource()')
 test.todo('updateResource()')
-test.todo('delete()')
+
+test('deleteResource()', async t => {
+  const testCases = [
+    {data: {is5xx: '501'}, expected: {httpStatus: 501, error: undefined}},
+    {data: {}, expected: {httpStatus: 204, body: undefined}},
+  ]
+
+  await Promise.all(testCases.map(({data}) => handler.deleteResource(data)))
+    .then(results => results.forEach(validator(t, testCases)))
+    .catch(t)
+})

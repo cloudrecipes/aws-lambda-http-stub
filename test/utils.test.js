@@ -1,5 +1,6 @@
 const test = require('ava')
 const utils = require('../lib/utils')
+const {validator} = require('./helpers')
 
 test('should have http utils', t => {
   t.truthy(utils.http)
@@ -15,10 +16,8 @@ test('responseFactory()', async t => {
     {httpStatus: 200, data: {foo: 'bar'}, expected: {httpStatus: 200, body: {foo: 'bar'}}},
   ]
 
-  const validator = (actual, idx) => t.deepEqual(actual, testCases[idx].expected)
-
   await Promise.all(testCases.map(({httpStatus, data}) => utils.http.responseFactory(httpStatus, data)))
-    .then(results => results.forEach(validator))
+    .then(results => results.forEach(validator(t, testCases)))
     .catch(t)
 })
 
