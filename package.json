@@ -1,7 +1,7 @@
 {
-  "name": "stub",
+  "name": "aws-lambda-http-stub",
   "version": "0.1.0",
-  "description": "NodeJS projects seed",
+  "description": "AWS Lambda HTTP stub",
   "main": "index.js",
   "scripts": {
     "lint": "eslint .",
@@ -11,8 +11,8 @@
     "watch:test": "cross-env NODE_ENV=test ava --watch"
   },
   "keywords": [
-    "nodejs",
-    "seed"
+    "lambda",
+    "stub"
   ],
   "author": "Anton Klimenko <antklim@gmail.com>",
   "license": "MIT",
@@ -77,5 +77,14 @@
   "directories": {
     "lib": "lib",
     "test": "test"
-  }
+  },
+  "dependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cloudrecipes/aws-lambda-http-stub.git"
+  },
+  "bugs": {
+    "url": "https://github.com/cloudrecipes/aws-lambda-http-stub/issues"
+  },
+  "homepage": "https://github.com/cloudrecipes/aws-lambda-http-stub#readme"
 }
